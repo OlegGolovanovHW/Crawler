@@ -1,0 +1,12 @@
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\bin\Debug\FileManager.exe.config
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\bin\Debug\FileManager.exe
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\bin\Debug\FileManager.pdb
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.csprojAssemblyReference.cache
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.Form2.resources
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.Form3.resources
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.Properties.Resources.resources
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.csproj.GenerateResource.cache
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.csproj.CoreCompileInputs.cache
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.exe
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.pdb
+C:\Users\uberm\Source\Repos\FileManagerBookFork\FileManager\obj\Debug\FileManager.Form1.resources
