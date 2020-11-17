@@ -58,6 +58,9 @@
             this.CurrentPathRight = new System.Windows.Forms.RichTextBox();
             this.SearchLeft = new System.Windows.Forms.RichTextBox();
             this.SearchRight = new System.Windows.Forms.RichTextBox();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.AmountToDrawLeft = new System.Windows.Forms.RichTextBox();
+            this.AmountToDrawRight = new System.Windows.Forms.RichTextBox();
             this.menuStrip.SuspendLayout();
             this.BackGroundForRename.SuspendLayout();
             this.SuspendLayout();
@@ -67,6 +70,7 @@
             this.ListOfItemsLeft.BackColor = System.Drawing.Color.White;
             this.ListOfItemsLeft.ForeColor = System.Drawing.Color.Black;
             this.ListOfItemsLeft.FormattingEnabled = true;
+            this.ListOfItemsLeft.HorizontalScrollbar = true;
             this.ListOfItemsLeft.Location = new System.Drawing.Point(4, 76);
             this.ListOfItemsLeft.Margin = new System.Windows.Forms.Padding(2);
             this.ListOfItemsLeft.Name = "ListOfItemsLeft";
@@ -89,6 +93,7 @@
             this.ListOfItemsRight.BackColor = System.Drawing.Color.White;
             this.ListOfItemsRight.ForeColor = System.Drawing.Color.Black;
             this.ListOfItemsRight.FormattingEnabled = true;
+            this.ListOfItemsRight.HorizontalScrollbar = true;
             this.ListOfItemsRight.Location = new System.Drawing.Point(543, 76);
             this.ListOfItemsRight.Margin = new System.Windows.Forms.Padding(2);
             this.ListOfItemsRight.Name = "ListOfItemsRight";
@@ -129,6 +134,7 @@
             this.StartSearchingRight.TabIndex = 10;
             this.StartSearchingRight.Text = "🔍";
             this.StartSearchingRight.UseVisualStyleBackColor = false;
+            this.StartSearchingRight.Click += new System.EventHandler(this.StartSearchingRight_Click);
             // 
             // StartSearchingLeft
             // 
@@ -139,6 +145,7 @@
             this.StartSearchingLeft.TabIndex = 12;
             this.StartSearchingLeft.Text = "🔍";
             this.StartSearchingLeft.UseVisualStyleBackColor = true;
+            this.StartSearchingLeft.Click += new System.EventHandler(this.StartSearchingLeft_Click);
             // 
             // Copy
             // 
@@ -339,6 +346,7 @@
             // CurrentPathLeft
             // 
             this.CurrentPathLeft.BackColor = System.Drawing.Color.White;
+            this.CurrentPathLeft.Enabled = false;
             this.CurrentPathLeft.ForeColor = System.Drawing.Color.Black;
             this.CurrentPathLeft.Location = new System.Drawing.Point(4, 55);
             this.CurrentPathLeft.Name = "CurrentPathLeft";
@@ -350,6 +358,7 @@
             // CurrentPathRight
             // 
             this.CurrentPathRight.BackColor = System.Drawing.Color.White;
+            this.CurrentPathRight.Enabled = false;
             this.CurrentPathRight.ForeColor = System.Drawing.Color.Black;
             this.CurrentPathRight.Location = new System.Drawing.Point(543, 55);
             this.CurrentPathRight.Name = "CurrentPathRight";
@@ -363,7 +372,8 @@
             this.SearchLeft.BackColor = System.Drawing.Color.White;
             this.SearchLeft.Location = new System.Drawing.Point(4, 578);
             this.SearchLeft.Name = "SearchLeft";
-            this.SearchLeft.Size = new System.Drawing.Size(518, 20);
+            this.SearchLeft.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.SearchLeft.Size = new System.Drawing.Size(422, 20);
             this.SearchLeft.TabIndex = 22;
             this.SearchLeft.Text = "";
             // 
@@ -372,9 +382,30 @@
             this.SearchRight.BackColor = System.Drawing.Color.White;
             this.SearchRight.Location = new System.Drawing.Point(543, 578);
             this.SearchRight.Name = "SearchRight";
-            this.SearchRight.Size = new System.Drawing.Size(502, 20);
+            this.SearchRight.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.SearchRight.Size = new System.Drawing.Size(403, 20);
             this.SearchRight.TabIndex = 23;
             this.SearchRight.Text = "";
+            // 
+            // AmountToDrawLeft
+            // 
+            this.AmountToDrawLeft.BackColor = System.Drawing.Color.White;
+            this.AmountToDrawLeft.Location = new System.Drawing.Point(430, 578);
+            this.AmountToDrawLeft.Name = "AmountToDrawLeft";
+            this.AmountToDrawLeft.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.AmountToDrawLeft.Size = new System.Drawing.Size(92, 20);
+            this.AmountToDrawLeft.TabIndex = 24;
+            this.AmountToDrawLeft.Text = "100";
+            // 
+            // AmountToDrawRight
+            // 
+            this.AmountToDrawRight.BackColor = System.Drawing.Color.White;
+            this.AmountToDrawRight.Location = new System.Drawing.Point(949, 578);
+            this.AmountToDrawRight.Name = "AmountToDrawRight";
+            this.AmountToDrawRight.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.AmountToDrawRight.Size = new System.Drawing.Size(92, 20);
+            this.AmountToDrawRight.TabIndex = 25;
+            this.AmountToDrawRight.Text = "100";
             // 
             // Form1
             // 
@@ -382,6 +413,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1073, 639);
+            this.Controls.Add(this.AmountToDrawRight);
+            this.Controls.Add(this.AmountToDrawLeft);
             this.Controls.Add(this.SearchRight);
             this.Controls.Add(this.SearchLeft);
             this.Controls.Add(this.CurrentPathRight);
@@ -446,6 +479,9 @@
         public System.Windows.Forms.ToolStripMenuItem toolStripMenuFileSecond;
         public System.Windows.Forms.ToolStripMenuItem toolStripMenuConfigurationFirst;
         public System.Windows.Forms.ToolStripMenuItem toolStripMenuInfoFirst;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.RichTextBox AmountToDrawLeft;
+        private System.Windows.Forms.RichTextBox AmountToDrawRight;
     }
 }
 

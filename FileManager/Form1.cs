@@ -12,6 +12,9 @@ using System.IO.Compression;
 //using System.IO.Compression.FileSystem;
 using System.Diagnostics;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace FileManager
 {
@@ -48,13 +51,19 @@ namespace FileManager
         public bool the_folder_is_copying = false;
         public bool the_file_is_moving = false;
         public bool the_folder_is_moving = false;
+        public bool search_performed_left = false;
+        public bool search_performed_right = false;
         public int bytesCopied;
         public const int BufferSize = 16384;
         public byte[] buffer = new byte[BufferSize];
         public Font DefaultFont = new Font("Microsoft Sans Serif", (float)8.25, FontStyle.Regular);
         public FileManagerSettings userPrefs;
         public BinaryFormatter binFormat = new BinaryFormatter();
-
+        public List<Book> BooksOnTheLeft = new List<Book>();
+        public List<Book> BooksOnTheRight = new List<Book>();
+        public Regex SearchIDandName;
+        public Regex SearchRating;
+        public Regex SearchPrice;
         [Serializable]
         public class FileManagerSettings
         {
@@ -87,6 +96,12 @@ namespace FileManager
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            Copy.Enabled = false;
+            Move.Enabled = false;
+            Edit.Enabled = false;
+            Delete.Enabled = false;
+            Archive.Enabled = false;
+
             if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\FileManagerSettings.dat"))
             {
                 Stream fstream = File.OpenRead(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\FileManagerSettings.dat");
@@ -114,12 +129,18 @@ namespace FileManager
                 userPrefs = new FileManagerSettings(this);
             }
             //загружаем приводы
-            DriveInfo[] drives = DriveInfo.GetDrives();
-            foreach(DriveInfo info in drives)
-            {
-                ListOfItemsLeft.Items.Add(info.Name);
-                ListOfItemsRight.Items.Add(info.Name);
-            }
+            ListOfItemsLeft.Items.Add("Python");
+            ListOfItemsRight.Items.Add("Python");
+            ListOfItemsLeft.Items.Add("Ruby");
+            ListOfItemsRight.Items.Add("Ruby");
+            ListOfItemsLeft.Items.Add("C++");
+            ListOfItemsRight.Items.Add("C++");
+            ListOfItemsLeft.Items.Add("Java");
+            ListOfItemsRight.Items.Add("Java");
+            ListOfItemsLeft.Items.Add("C#");
+            ListOfItemsRight.Items.Add("C#");
+
+
             WatcherLeft.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             WatcherRight.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             WatcherLeft.Filter = "";
@@ -133,11 +154,14 @@ namespace FileManager
             WatcherRight.Created += WatcherRight_Change;
             WatcherRight.Deleted += WatcherRight_Change;
             WatcherRight.Renamed += WatcherRight_Change;
-            //обработка двойного клика мышью по папке или файлу 
-            ListOfItemsLeft.Click += new EventHandler(ListOfItemsLeft_Click);
-            ListOfItemsRight.Click += new EventHandler(ListOfItemsRight_Click);
+            
+            //ListOfItemsLeft.Click += new EventHandler(ListOfItemsLeft_Click);
+            //ListOfItemsRight.Click += new EventHandler(ListOfItemsRight_Click);
+            //обработка двойного клика мышью по объекту в ListBox
             ListOfItemsLeft.DoubleClick += new EventHandler(ListOfItemsLeft_DoubleClick);
-            ListOfItemsRight.DoubleClick += new EventHandler(ListOfItemsRight_DoubleClick);    
+            ListOfItemsRight.DoubleClick += new EventHandler(ListOfItemsRight_DoubleClick);             
+            //обработка поиска по запросу
+
         }
         private void WatcherLeft_Change(object source, FileSystemEventArgs e)
         {
@@ -174,12 +198,12 @@ namespace FileManager
 
         private void ListOfItemsLeft_DoubleClick(object sender, EventArgs e)
         {
-            DoubleClickHandler(ListOfItemsLeft, CurrentPathLeft, the_name_of_the_current_folder_or_file_left, ref current_files_left); //обновляем содержимое директории
+            DoubleClickHandler(ListOfItemsLeft, ref BooksOnTheLeft, ref search_performed_left); //обновляем содержимое директории
         }
 
         private void ListOfItemsRight_DoubleClick(object sender, EventArgs e)
         {
-            DoubleClickHandler(ListOfItemsRight, CurrentPathRight, the_name_of_the_current_folder_or_file_right, ref current_files_right); //обновляем содержимое директории
+            DoubleClickHandler(ListOfItemsRight, ref BooksOnTheRight, ref search_performed_right); //обновляем содержимое директории
         }
 
         private void EscapeLeft_Click(object sender, EventArgs e)
@@ -229,28 +253,34 @@ namespace FileManager
             }      
         }
 
-        private void DoubleClickHandler(ListBox ListOfItems, RichTextBox CurrentPath, string the_name_of_the_current_folder_or_file, ref List<string> current_files) //открытие папки
+        private void DoubleClickHandler(ListBox ListOfItems, ref List<Book> Books, ref bool search_performed) //открытие папки
         {
             if (ListOfItems.SelectedItem != null) //если некоторый предмет был выбран  
             {
-                the_name_of_the_current_folder_or_file = ListOfItems.SelectedItem.ToString(); //записываем его имя
-                if (IsFile(ListOfItems, CurrentPath, ref current_files).Equals(0)) //если не файл - открываем папку
+                if (search_performed)
                 {
-                    ListOfItems.Items.Clear();
-                    if (the_name_of_the_current_folder_or_file[the_name_of_the_current_folder_or_file.Length - 1] == '\\')
+                    string link = "";
+                    for (int i = 0; i < Books.Count(); i++)
                     {
-                        CurrentPath.Text += the_name_of_the_current_folder_or_file;
+                        if (ListOfItems.SelectedItem.ToString() == Books[i].SummOfAllParameters)
+                        {
+                            link = Books[i].Link;
+                            break;
+                        }
                     }
-                    else
+                    if (link != "")
                     {
-                        CurrentPath.Text += the_name_of_the_current_folder_or_file + "\\";
+                        System.Diagnostics.Process.Start("https://www.ozon.ru/context/detail/id/" + link);
                     }
-                    //обновляем содержимое директории
-                    GetAndDisplayDirectory(ListOfItems, CurrentPath, the_name_of_the_current_folder_or_file, ref current_files);
                 }
                 else
                 {
-                    Process.Start(CurrentPath.Text + the_name_of_the_current_folder_or_file); //иначе, если файл, открываем
+                    Books = GetBooksList(new List<Book>(), "50", ListOfItems.SelectedItem.ToString(), ref search_performed);
+                    ListOfItems.Items.Clear();
+                    foreach (Book book in Books)
+                    {
+                        ListOfItems.Items.Add(book.SummOfAllParameters);
+                    }
                 }
             }
         }
@@ -783,5 +813,145 @@ namespace FileManager
         }
 
 
+        private List<Book> GetBooksList(List<Book> Books, string AmountToDraw, string SearchLineRequest, ref bool SearchPerformed) //Crawler
+        {
+            SearchPerformed = true;
+            string request = "";
+            foreach (char character in SearchLineRequest)
+            {
+                if (character == '+')
+                {
+                    request += "%2B";
+                }
+                else if (character == '#')
+                {
+                    request += "%23";
+                }
+                else if (character == '(')
+                {
+                    request += "%28";
+                }
+                else if (character == ')')
+                {
+                    request += "%29";
+                }
+                else
+                {
+                    request += character;
+                }
+            }
+            //так как Amazon, судя по всему, защищён от парсинга, пришлось парсить Ozon
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            WebClient client = new WebClient();
+            client.Encoding = Encoding.UTF8;
+            SearchRating = new Regex(@"""rating"":(?'rating'(\d{1}\.\p{N}+|\d)),""countItems""");
+            SearchPrice = new Regex(@"""price"":""(?'price'.+?)""");
+            SearchIDandName = new Regex(@"""id"":(?'link'\d+?),""title"":""(?'name'.+?)""");
+            List<string> ID = new List<string>();
+            List<string> Titles = new List<string>();
+            List<string> IDnew = new List<string>();
+            List<string> TitleSnew = new List<string>(); 
+            List<string> Ratings = new List<string>();
+            List<string> Prices = new List<string>();
+            int page = 1;
+            int cnt = 0;
+            int cnt_buf = 0;
+            while (cnt < Int32.Parse(AmountToDraw))
+            {    
+                //ищем только печатные книги
+                string requestURL = @"https://www.ozon.ru/category/knigi-16500/?bymediatype=1147731&from_global=true&page=" + page.ToString() + "&text=" + request;
+                string HtmlPage = client.DownloadString(requestURL);         
+                foreach (Match m in SearchIDandName.Matches(HtmlPage))
+                {
+                    ID.Add(m.Groups["link"].ToString());
+                    Titles.Add(m.Groups["name"].ToString());                   
+
+                }
+                foreach (Match m in SearchRating.Matches(HtmlPage))
+                {
+                    Ratings.Add(m.Groups["rating"].ToString());
+                    cnt_buf++;
+                    if (cnt + cnt_buf == Int32.Parse(AmountToDraw))
+                        break;
+                }
+                cnt_buf = 0;
+                foreach (Match m in SearchPrice.Matches(HtmlPage))
+                {
+                    Prices.Add(m.Groups["price"].ToString());
+                    cnt_buf++;
+                    if (cnt + cnt_buf == Int32.Parse(AmountToDraw))
+                        break;
+                }
+                if (cnt_buf < 36)
+                {
+                    break;
+                }
+                cnt += cnt_buf;
+                cnt_buf = 0;
+                page++;
+            }
+            for (int i = 0; i < ID.Count; i++)
+            {
+                if (ID[i].Length >= 7)
+                {
+                    IDnew.Add(ID[i]);
+                    TitleSnew.Add(Titles[i]);
+                }
+            }
+            for (int i = 0; i < Math.Min(Math.Min(Ratings.Count, Prices.Count),IDnew.Count); i++)
+            {
+                Books.Add(new Book(IDnew[i], TitleSnew[i], Ratings[i], Prices[i]));
+            }
+            return Books;
+        }
+
+        private void StartSearchingLeft_Click(object sender, EventArgs e)
+        {
+            BooksOnTheLeft = GetBooksList(new List<Book>(), AmountToDrawLeft.Text, SearchLeft.Text, ref search_performed_left);
+            ListOfItemsLeft.Items.Clear();
+            foreach(Book book in BooksOnTheLeft)
+            {
+                ListOfItemsLeft.Items.Add(book.SummOfAllParameters);
+            }
+        }
+
+        private void StartSearchingRight_Click(object sender, EventArgs e)
+        {
+            BooksOnTheRight = GetBooksList(new List<Book>(), AmountToDrawRight.Text, SearchRight.Text, ref search_performed_right);
+            ListOfItemsRight.Items.Clear();
+            foreach (Book book in BooksOnTheRight)
+            {
+                ListOfItemsRight.Items.Add(book.SummOfAllParameters);
+            }
+        }
+    }
+    public class Book
+    {
+        public string Link;
+        public string NameAndAuthor;
+        public string Rating;
+        public string Price;
+        public string SummOfAllParameters;
+        public Book(string link, string name_and_author, string rating, string price)
+        {
+            Link = link;
+            NameAndAuthor = name_and_author;
+            if (rating.Length > 4)
+            {
+                double buf = Double.Parse(rating, CultureInfo.InvariantCulture);
+                buf = Math.Round(buf, 2);
+                Rating = buf.ToString();
+            }
+            else
+            {
+                Rating = rating;
+            }
+            Price = price;
+            SummOfAllParameters = NameAndAuthor + ", " + Rating + "/5 stars, " + Price + ".";
+        }
+        public Book()
+        {
+
+        }
     }
 }
