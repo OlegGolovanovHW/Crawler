@@ -845,7 +845,7 @@ namespace FileManager
             WebClient client = new WebClient();
             client.Encoding = Encoding.UTF8;
             SearchRating = new Regex(@"""rating"":(?'rating'(\d{1}\.\p{N}+|\d)),""countItems""");
-            SearchPrice = new Regex(@"""price"":""(?'price'.+?)""");
+            SearchPrice = new Regex(@"""price"":{""price"":""(?'price'.+?)""");
             SearchIDandName = new Regex(@"""id"":(?'link'\d+?),""title"":""(?'name'.+?)""");
             List<string> ID = new List<string>();
             List<string> Titles = new List<string>();
